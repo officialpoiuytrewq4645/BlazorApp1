@@ -1,0 +1,119 @@
+﻿@page "/Tool"
+@using PoiString
+<PageTitle>Tool</PageTitle>
+
+<h1>Counter</h1>
+@*<EditForm model>*@
+
+
+<EditForm Model="@exampleModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        Position
+        <br />
+        X:
+        <InputNumber @bind-Value="exampleModel.posX" />
+        Y:
+        <InputNumber @bind-Value="exampleModel.posY" />
+        Z:
+        <InputNumber @bind-Value="exampleModel.posZ" />
+    </div>
+    <div>
+        Rotation
+        <br />
+        X:
+        <InputNumber @bind-Value="exampleModel.rotX" />
+        Y:
+        <InputNumber @bind-Value="exampleModel.rotY" />
+        Z:
+        <InputNumber @bind-Value="exampleModel.rotZ" />
+    </div>
+    <div>
+        Target Position
+        <br />
+        X:
+        <InputNumber @bind-Value="exampleModel.targetX" />
+        Y:
+        <InputNumber @bind-Value="exampleModel.targetY" />
+        Z:
+        <InputNumber @bind-Value="exampleModel.targetZ" />
+    </div>
+
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+
+
+    @exampleModel.position.ToString()<br />
+    @exampleModel.test
+</EditForm>
+
+
+
+
+@*</EditForm>*@
+@*<p role="status">Current count: @currentCount</p>*@
+
+@*<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>*@
+@code {
+
+    private ExampleModel exampleModel = new ExampleModel();
+
+    private void HandleValidSubmit()
+    {
+        Vim.Math3d.Vector3 pos = new Vim.Math3d.Vector3(exampleModel.targetX, exampleModel.targetY, exampleModel.targetZ);
+        Vim.Math3d.Vector3 spawnpos = new Vim.Math3d.Vector3(exampleModel.posX, exampleModel.posY, exampleModel.posZ);
+        pos -= spawnpos;
+        var rot = Vim.Math3d.Quaternion.CreateFromEulerAngles(new Vim.Math3d.Vector3());
+        exampleModel.position = pos.TransformNormal(Vim.Math3d.Matrix4x4.CreateFromYawPitchRoll(exampleModel.rotX * MathF.PI / 180, exampleModel.rotY * MathF.PI / 180, exampleModel.rotZ * MathF.PI / 180));
+        exampleModel.position.SetX(MathF.Round(exampleModel.position.X));
+        exampleModel.position.SetY(MathF.Round(exampleModel.position.Y));
+        exampleModel.position.SetZ(MathF.Round(exampleModel.position.Z));
+
+        Console.WriteLine(exampleModel.position);
+        try
+        {
+            PoiString.Knowledge.KnowledgeManager.InitializeStructure();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+        PoiString.AttTypes.NetworkPrefab prefab = new PoiString.AttTypes.NetworkPrefab()
+            {
+                PrefabHash = 1,
+                Components = new List<PoiString.AttTypes.Components.ATTSerializableComponent>()
+                {
+                    new PoiString.AttTypes.Components.MapBoard()
+                    {
+                         mapHash = 0,
+                         positionOffset = new PoiString.AttTypes.Components.Vector2() { x = 1, y = 3 },
+                         zoom = 1,
+                         unlockPieceIndex = 0
+                    }
+                }
+            };
+        exampleModel.test = PoiStentions.GetAsATTString(prefab);
+        InvokeAsync(StateHasChanged);
+        //Vim.Math3d.Transformable3D.RotateAround(
+    }
+
+    public class ExampleModel
+    {
+        public float posX = 1;
+        public float posY;
+        public float posZ;
+
+        public float rotX;
+        public float rotY = 90;
+        public float rotZ;
+
+        public float targetX;
+        public float targetY;
+        public float targetZ;
+
+        public Vim.Math3d.Vector3 position = new Vim.Math3d.Vector3(0, 0, 0);
+        public string test;
+    }
+}
