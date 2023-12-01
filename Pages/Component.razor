@@ -9,37 +9,76 @@
 <EditForm Model="@exampleModel" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <div>
-        Position
-        <br />
-        X:
-        <InputNumber @bind-Value="exampleModel.posX" />
-        Y:
-        <InputNumber @bind-Value="exampleModel.posY" />
-        Z:
-        <InputNumber @bind-Value="exampleModel.posZ" />
+    <br />
+    Position
+    <div class="object-container">
+        <div class="object-group">
+            <div class="object">
+                X:
+            </div>
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.posX" class="number-boxes" />
+            </div>
+        </div>
+        <div class="object-group">
+            <div class="object">
+                Y:
+            </div>
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.posY" class="number-boxes" />
+            </div>
+        </div>
+        <div class="object-group">
+            <div class="object">
+                Z:
+            </div>
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.posZ" class="number-boxes" />
+            </div>
+        </div>
     </div>
-    <div>
-        Rotation
-        <br />
-       @* X:
-        <InputNumber @bind-Value="exampleModel.rotX" />
-        Y:
-        <InputNumber @bind-Value="exampleModel.rotY" />
-        Z:*@
-        <InputNumber @bind-Value="exampleModel.Rotation" />
+    <br />
+
+    Rotation
+    <div class="object-container">
+        <div class="object-group">
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.Rotation" class="number-boxes" />
+            </div>
+        </div>
     </div>
-    <div>
-        Target Position
-        <br />
-        X:
-        <InputNumber @bind-Value="exampleModel.targetX" />
-        Y:
-        <InputNumber @bind-Value="exampleModel.targetY" />
-        Z:
-        <InputNumber @bind-Value="exampleModel.targetZ" />
+    <br />
+
+
+    Target Position
+    <div class="object-container">
+        <div class="object-group">
+            <div class="object">
+                X:
+            </div>
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.targetX" class="number-boxes" />
+            </div>
+        </div>
+        <div class="object-group">
+            <div class="object">
+                Y:
+            </div>
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.targetY" class="number-boxes" />
+            </div>
+        </div>
+        <div class="object-group">
+            <div class="object">
+                Z:
+            </div>
+            <div class="object">
+                <InputNumber @bind-Value="exampleModel.targetZ" class="number-boxes" />
+            </div>
+        </div>
     </div>
-    <br/>
+
+    <br />
     <div>
         <button type="submit">Submit</button>
     </div>
@@ -66,13 +105,14 @@
         Vim.Math3d.Vector3 TeleportDestination = new Vim.Math3d.Vector3(exampleModel.targetX, exampleModel.targetY, exampleModel.targetZ);
         Vim.Math3d.Vector3 SpawnAtPosition = new Vim.Math3d.Vector3(exampleModel.posX, exampleModel.posY, exampleModel.posZ);
         TeleportDestination -= SpawnAtPosition;
-        var rot = Vim.Math3d.Quaternion.CreateFromAxisAngle(Vim.Math3d.Vector3.UnitY, MathF.Round((float)(exampleModel.Rotation*(Math.PI/180)),3) );
-        exampleModel.position = TeleportDestination.TransformNormal(Vim.Math3d.Matrix4x4.CreateFromQuaternion(rot));
+        var rot = Vim.Math3d.Quaternion.CreateFromAxisAngle(Vim.Math3d.Vector3.UnitY, MathF.Round((float)(exampleModel.Rotation * (Math.PI / 180)), 3));
+        var rot2 = Vim.Math3d.Quaternion.CreateFromAxisAngle(Vim.Math3d.Vector3.UnitY, MathF.Round((float)(-exampleModel.Rotation * (Math.PI / 180)), 3));
+        exampleModel.position = TeleportDestination.TransformNormal(Vim.Math3d.Matrix4x4.CreateFromQuaternion(rot2));
         exampleModel.position.SetX(MathF.Round(exampleModel.position.X));
         exampleModel.position.SetY(MathF.Round(exampleModel.position.Y));
         exampleModel.position.SetZ(MathF.Round(exampleModel.position.Z));
 
-       
+
 
         Console.WriteLine(exampleModel.position);
         try
