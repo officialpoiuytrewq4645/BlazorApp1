@@ -22,12 +22,12 @@
     <div>
         Rotation
         <br />
-        X:
+       @* X:
         <InputNumber @bind-Value="exampleModel.rotX" />
         Y:
         <InputNumber @bind-Value="exampleModel.rotY" />
-        Z:
-        <InputNumber @bind-Value="exampleModel.rotZ" />
+        Z:*@
+        <InputNumber @bind-Value="exampleModel.Rotation" />
     </div>
     <div>
         Target Position
@@ -39,14 +39,14 @@
         Z:
         <InputNumber @bind-Value="exampleModel.targetZ" />
     </div>
-
+    <br/>
     <div>
         <button type="submit">Submit</button>
     </div>
 
 
-    @exampleModel.position.ToString()<br />
-    @exampleModel.test
+    @*exampleModel.position.ToString()<br/> <br/>*@
+    @exampleModel.ReturnVal
 </EditForm>
 
 
@@ -62,58 +62,90 @@
 
     private void HandleValidSubmit()
     {
-        Vim.Math3d.Vector3 pos = new Vim.Math3d.Vector3(exampleModel.targetX, exampleModel.targetY, exampleModel.targetZ);
-        Vim.Math3d.Vector3 spawnpos = new Vim.Math3d.Vector3(exampleModel.posX, exampleModel.posY, exampleModel.posZ);
-        pos -= spawnpos;
-        var rot = Vim.Math3d.Quaternion.CreateFromEulerAngles(new Vim.Math3d.Vector3());
-        exampleModel.position = pos.TransformNormal(Vim.Math3d.Matrix4x4.CreateFromYawPitchRoll(exampleModel.rotX * MathF.PI / 180, exampleModel.rotY * MathF.PI / 180, exampleModel.rotZ * MathF.PI / 180));
+        exampleModel.ReturnVal = "";
+        Vim.Math3d.Vector3 TeleportDestination = new Vim.Math3d.Vector3(exampleModel.targetX, exampleModel.targetY, exampleModel.targetZ);
+        Vim.Math3d.Vector3 SpawnAtPosition = new Vim.Math3d.Vector3(exampleModel.posX, exampleModel.posY, exampleModel.posZ);
+        TeleportDestination -= SpawnAtPosition;
+        var rot = Vim.Math3d.Quaternion.CreateFromAxisAngle(Vim.Math3d.Vector3.UnitY, MathF.Round((float)(exampleModel.Rotation*(Math.PI/180)),3) );
+        exampleModel.position = TeleportDestination.TransformNormal(Vim.Math3d.Matrix4x4.CreateFromQuaternion(rot));
         exampleModel.position.SetX(MathF.Round(exampleModel.position.X));
         exampleModel.position.SetY(MathF.Round(exampleModel.position.Y));
         exampleModel.position.SetZ(MathF.Round(exampleModel.position.Z));
 
+       
+
         Console.WriteLine(exampleModel.position);
         try
         {
-            PoiString.Knowledge.KnowledgeManager.InitializeStructure();
+            //poistring does work, removed because not latest version
+            //PoiString.Knowledge.KnowledgeManager.InitializeStructure();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex);
+
+            //PoiString.AttTypes.NetworkPrefab prefab = new PoiString.AttTypes.NetworkPrefab()
+            //    {
+            //        PrefabHash = 1,
+            //        Components = new List<PoiString.AttTypes.Components.ATTSerializableComponent>()
+            //        {
+            //            new PoiString.AttTypes.Components.MapBoard()
+            //            {
+            //                 mapHash = 0,
+            //                 positionOffset = new PoiString.AttTypes.Components.Vector2() { x = 1, y = 3 },
+            //                 zoom = 1,
+            //                 unlockPieceIndex = 0
+            //            }
+            //        }
+            //    };
+            //exampleModel.test = PoiStentions.GetAsATTString(prefab);
         }
-        PoiString.AttTypes.NetworkPrefab prefab = new PoiString.AttTypes.NetworkPrefab()
-            {
-                PrefabHash = 1,
-                Components = new List<PoiString.AttTypes.Components.ATTSerializableComponent>()
-                {
-                    new PoiString.AttTypes.Components.MapBoard()
-                    {
-                         mapHash = 0,
-                         positionOffset = new PoiString.AttTypes.Components.Vector2() { x = 1, y = 3 },
-                         zoom = 1,
-                         unlockPieceIndex = 0
-                    }
-                }
-            };
-        exampleModel.test = PoiStentions.GetAsATTString(prefab);
+        exampleModel.ReturnVal += "spawn string-raw ";
+
+        uint[] data = new uint[] { 49418, 69, 49418, 0, 0, 0, 0, 0, 0, 0, 1065353216, 3146178080, 128, 0, 0, 0, 2147483649, 0, 0, 0 };
+        //Position XYZ
+        data[3] = StringValFromFloat(exampleModel.posX);
+        data[4] = StringValFromFloat(exampleModel.posY);
+        data[5] = StringValFromFloat(exampleModel.posZ);
+        //Rotation XYZW
+        data[6] = StringValFromFloat(rot.X);
+        data[7] = StringValFromFloat(rot.Y);
+        data[8] = StringValFromFloat(rot.Z);
+        data[9] = StringValFromFloat(rot.W);
+        //Target XYZ
+        data[13] = StringValFromFloat(exampleModel.position.X);
+        data[14] = StringValFromFloat(exampleModel.position.Y);
+        data[15] = StringValFromFloat(exampleModel.position.Z);
+
+        foreach (var item in data)
+        {
+            exampleModel.ReturnVal += item.ToString();
+            exampleModel.ReturnVal += ",";
+        }
         InvokeAsync(StateHasChanged);
         //Vim.Math3d.Transformable3D.RotateAround(
     }
-
+    public static uint StringValFromFloat(float val)
+    {
+        uint val2 = 0;
+        val2 = BitConverter.ToUInt32(BitConverter.GetBytes(val), 0);
+        return val2;
+    }
     public class ExampleModel
     {
         public float posX = 1;
         public float posY;
         public float posZ;
 
-        public float rotX;
-        public float rotY = 90;
-        public float rotZ;
+        //public float rotX;
+        //public float rotY = 90;
+        public float Rotation;
 
         public float targetX;
         public float targetY;
         public float targetZ;
 
         public Vim.Math3d.Vector3 position = new Vim.Math3d.Vector3(0, 0, 0);
-        public string test;
+        public string ReturnVal;
     }
 }
