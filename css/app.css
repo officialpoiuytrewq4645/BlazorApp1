@@ -59,6 +59,47 @@ a, .btn-link {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
+
+/*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+/*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+/*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+
+/*Start Poi Stuff*/
+
+.middle-container {
+    align-items: center; /* Center items horizontally */
+    text-align: center; /* Center text within the container */
+    width:560px;
+}
+
+.object-container {
+    display: flex;
+    flex-direction: row;
+    text-align:left
+}
+
+.object-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0px; /* Adjust as needed */
+    /*background:#12ff00*/
+}
+
+/* Additional styling for your objects */
+.object {
+    width: 190px; /* Adjust as needed */    
+    text-align:left;
+    height: 30px; /* Adjust as needed */
+    /*border:dotted;
+    border-width:1px;*/
+    /* Add any other styling properties as needed */
+}
+
+.number-boxes {
+    width: 180px;
+    margin-left:5px;
+}
