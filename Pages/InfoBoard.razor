@@ -1,0 +1,69 @@
+﻿@page "/InfoBoard"
+@using PoiString
+<PageTitle>InfoBoard</PageTitle>
+<h1>InfoBoard Tool</h1>
+
+
+
+
+<EditForm Model="@exampleModel" OnValidSubmit="@HandleValidSubmit">
+    BoardChannel <br/>
+    <InputText @bind-Value="exampleModel.BoardChannel"/> <br/>
+    <br/>
+    PlayerName <br />
+    <InputText @bind-Value="exampleModel.PlayerName" /> <br />
+    <br />
+
+
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+
+
+    @*exampleModel.position.ToString()<br/> <br/>*@
+    @exampleModel.ReturnVal
+</EditForm>
+
+
+
+
+@code {
+    private ExampleModel exampleModel = new ExampleModel();
+
+    private void HandleValidSubmit()
+    {
+        PoiString.Knowledge.KnowledgeManager.InitializeStructure();
+        PoiString.AttTypes.NetworkPrefab prefab = new PoiString.AttTypes.NetworkPrefab()
+            {
+                PrefabHash = 51114,
+                Components = new List<PoiString.AttTypes.Components.ATTSerializableComponent>()
+                {
+                    new PoiString.AttTypes.Components.InfoBoard()
+                    {
+                        Channel = exampleModel.BoardChannel
+                    }
+                }
+            };
+
+        exampleModel.ReturnVal = "";
+
+        exampleModel.ReturnVal += $"spawn string {exampleModel.PlayerName} ";
+        exampleModel.ReturnVal += PoiStentions.GetAsATTString(prefab);
+
+
+        InvokeAsync(StateHasChanged);
+        //Vim.Math3d.Transformable3D.RotateAround(
+    }
+    public static uint StringValFromFloat(float val)
+    {
+        uint val2 = 0;
+        val2 = BitConverter.ToUInt32(BitConverter.GetBytes(val), 0);
+        return val2;
+    }
+    public class ExampleModel
+    {
+        public string BoardChannel = "";
+        public string PlayerName = "";
+        public string ReturnVal = "";
+    }
+}
